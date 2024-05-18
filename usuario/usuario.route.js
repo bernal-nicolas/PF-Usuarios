@@ -1,65 +1,37 @@
-const express = require('express')
+const express = require('express');
 const router = express.Router();
-const { readUsuarioConFiltros, createUsuario, updateUsuario, deleteUsuario } = require("./usuario.controller");
+const { readUsuarioConFiltros, createUsuario, loginUsuario } = require("./usuario.controller");
 const { respondWithError } = require('../utils/functions');
 
 async function GetUsuarios(req, res) {
     try {
         const resultadosBusqueda = await readUsuarioConFiltros(req.query);
-
-        res.status(200).json({
-            ...resultadosBusqueda
-        })
-    } catch(e) {
-        res.status(500).json({msg: ""})
+        res.status(200).json(resultadosBusqueda);
+    } catch (e) {
+        respondWithError(res, e);
     }
 }
 
 async function PostUsuario(req, res) {
     try {
-
         await createUsuario(req.body);
-
-        res.status(200).json({
-            mensaje: "Éxito. 👍"
-        })
-    } catch(e) {
+        res.status(201).json({ mensaje: "Usuario creado con éxito." });
+    } catch (e) {
         respondWithError(res, e);
     }
 }
 
-
-async function PatchUsuarios(req, res) {
+async function LoginUsuario(req, res) {
     try {
-
-        await updateUsuario(req.body);
-
-        res.status(200).json({
-            mensaje: "Éxito. 👍"
-        })
-    } catch(e) {
-        respondWithError(res, e);
-    }
-}
-
-
-async function DeleteUsuarios(req, res) {
-    try {
-
-        await deleteUsuario(req.params.id);
-
-        res.status(200).json({
-            mensaje: "Éxito. 👍"
-        })
-    } catch(e) {
+        const { usuario, token } = await loginUsuario(req.body);
+        res.status(200).json({ mensaje: "Inicio de sesión exitoso.", usuario, token });
+    } catch (e) {
         respondWithError(res, e);
     }
 }
 
 router.get("/", GetUsuarios);
 router.post("/", PostUsuario);
-router.patch("/", PatchUsuarios);
-router.delete("/:id", DeleteUsuarios);
-
+router.post("/login", LoginUsuario);
 
 module.exports = router;

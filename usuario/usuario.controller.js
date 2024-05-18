@@ -1,41 +1,33 @@
-const { throwCustomError } = require("../utils/functions");
-const { createUsuarioMongo, getUsuarioMongo, updateUsuarioMongo, deleteUsuarioMongo } = require("./usuario.actions");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const { createUsuarioMongo, getUsuarioMongo, findUsuarioByCorreo } = require("./usuario.actions");
 
 async function readUsuarioConFiltros(query) {
-    const { correo, password } = query;
-
     const resultadosBusqueda = await getUsuarioMongo(query);
-
     return resultadosBusqueda;
 }
 
 async function createUsuario(datos) {
-    const { correo, password } = datos;
-
     const usuarioCreado = await createUsuarioMongo(datos);
-
     return usuarioCreado;
 }
 
-
-function updateUsuario(datos) {
-    const { _id, ...cambios } = datos;
-
-    const usuarioActualizado = updateUsuarioMongo(_id, cambios);
-
-    return usuarioActualizado;
-}
-
-function deleteUsuario(id) {
-
-    const usuarioEliminado = deleteUsuarioMongo(id);
-
-    return usuarioEliminado;
+async function loginUsuario(datos) {
+    const { correo, password } = datos;
+    const usuario = await findUsuarioByCorreo(correo);
+    if (!usuario) {
+        throw new Error("Correo o contraseña incorrectos");
+    }
+    const isMatch = await bcrypt.compare(password, usuario.password);
+    if (!isMatch) {
+        throw new Error("Correo o contraseña incorrectos");
+    }
+    const token = jwt.sign({ id: usuario._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
+    return { usuario, token };
 }
 
 module.exports = {
     readUsuarioConFiltros,
     createUsuario,
-    updateUsuario,
-    deleteUsuario
-}
+    loginUsuario
+};
