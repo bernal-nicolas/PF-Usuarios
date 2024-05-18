@@ -24,7 +24,7 @@ async function PostUsuario(req, res) {
 async function LoginUsuario(req, res) {
     try {
         const { usuario, token } = await loginUsuario(req.body);
-        res.status(200).json({ mensaje: "Inicio de sesión exitoso.", usuario, token });
+        res.status(200).json({ token, id: usuario.id });
     } catch (e) {
         respondWithError(res, e);
     }
