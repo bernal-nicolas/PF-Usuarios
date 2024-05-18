@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const schemaUsuario = new mongoose.Schema({
     correo: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    isActive: { type: Boolean, required: true, default: true }
+    isActive: { type: Boolean, required: true, default: true } // Soft Delete
 }, {
     versionKey: false,
     timestamps: true
