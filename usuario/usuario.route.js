@@ -17,7 +17,11 @@ async function PostUsuario(req, res) {
         await createUsuario(req.body);
         res.status(201).json({ mensaje: "Usuario creado con éxito." });
     } catch (e) {
+      if (typeof e === "object"){
+        res.status(409).json({ msg: "Email is taken!" })
+      } else {
         respondWithError(res, e);
+      }
     }
 }
 
@@ -26,7 +30,11 @@ async function LoginUsuario(req, res) {
         const { usuario, token } = await loginUsuario(req.body);
         res.status(200).json({ token, id: usuario.id });
     } catch (e) {
-        respondWithError(res, e);
+        if (typeof e === "object"){
+          res.status(401).json({ msg: "UNAUTHORIZED" })
+        } else {
+          respondWithError(res, e);
+        }
     }
 }
 
